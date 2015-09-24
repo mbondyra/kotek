@@ -1,0 +1,33 @@
+#screen {
+    width:500px;
+    height:500px;
+    background: #a6ddf0;
+    position:relative;
+
+}
+#scoreBoard {
+    color:white;
+    text-transform: uppercase;
+    text-align: center;
+    font-family: fantasy;
+    font-size:20px;
+    width:100%;
+    height:30px;
+    line-height:30px;
+    background: royalblue;
+}
+
+#score {
+    color: lightpink;
+}
+#cat {
+    height:70px;
+    position:absolute;
+    bottom:20px;
+    left:220px;
+
+}
+
+#cheeseWall {
+
+}
