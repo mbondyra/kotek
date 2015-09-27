@@ -1,6 +1,4 @@
 $( document ).ready(function() {
-
-    var socks=[];
     var mice = [
         new Mouse(100,-100, 1),
         new Mouse(350,-200, 2),
@@ -29,33 +27,52 @@ $( document ).ready(function() {
         new Cheese(15),
         new Cheese(16),
         new Cheese(17)
-        );
+    );
 
-    for (i in mice){
-        mice[i].createMouse();
-    }
+
+   socks=[
+        new Sock(),
+        new Sock(),
+        new Sock(),
+        new Sock(),
+        new Sock(),
+        new Sock()
+    ];
 
     for (i in cheeses){
         cheeses[i].putCheese();
     }
 
+    for (i in socks){
+        socks[i].create();
+    }
 
+    var bulletsLeft = socks.length-1;
+
+    for (i in mice){
+        mice[i].createMouse();
+    }
+
+    $('#screen').bind('mouseleave',function() {
+        Cat.streighten();
+    });
 
     $('#screen').mousemove(function(e) {
         Cat.move(e);
     });
 
+
     $('#screen').click(function(e) {
-        Cat.move(e);
+        socks[0].fire(e, socks.shift());
     });
 
     var pause = true;
     var timer = null;
     $("#pause").click(function() {
+        event.stopPropagation();
         pause = !pause;
 
         if (pause) {
-           // $("#pause").html("PAUSE");
             $("#pause").html("RESUME");
             clearInterval(timer);
             timer = null;
@@ -65,180 +82,33 @@ $( document ).ready(function() {
             timer = setInterval(function () {
                 for (i in mice) {
                     mice[i].move();
+                    for (var u in socks) {
+                        if(socks[u].fired==true)
+                        if (mice[i].collidesWith(socks[u]) && mice[i].frightened==0){
+                            mice[i].come_back();
+                            scoreCounter.incrementScore();
+                            mice[i].frightened=1;
+                        }
+                    }
                     if(mice[i].y>300) {
                         for (a in cheeses) {
                             if (mice[i].collidesWith(cheeses[a])) {
                                 cheeses[a].setEaten();
+                                mice[i].come_back();
                             }
                         }
+                    }
+                    if(mice[i].y>450) {
+                        gameOver();
+                        clearInterval(timer);
+                        timer = null;
+                        $('#screen').off('mousemove');
                     }
                 }
             }, 100);
             $("#pause").html("PAUSE");
         }
     });
-
-    $('#screen').bind('mouseleave',function() {
-        Cat.streighten();
-    });
-
-
 });
 
 
-var Cat = {
-    id: "cat",
-    rotation: 0,
-    size: {
-        getHeight: function(){ return $('#cat').height()},
-        getWidth: function (){ return $('#cat').width()},
-    },
-    position: {
-        getX: function(){return $('#cat').offset().left + Cat.size.getWidth()/2},
-        getY: function(){return $('#cat').offset().top + Cat.size.getHeight()/2}
-    },
-    move:function(e) {
-        var relX = e.pageX - Cat.position.getX();
-        var relY = Cat.position.getY() - e.pageY ;
-        var arotation=Math.atan(relX/relY);
-        Cat.rotation=(arotation > 0 ? arotation : (2*Math.PI + arotation)) * 360 / (2*Math.PI);
-        $('#cat').css({
-            "transform":"rotate("+Cat.rotation+"deg)"
-        });
-
-    },
-    streighten:function(){
-        $('#cat').css({
-            "transform":"rotate(0deg)"
-        })
-    }
-};
-
-var Sock = function (index){
-    this.name = "Sock"+index;
-    this.fired = false;
-    this.shootSock = function () {
-        $( "#screen").append( '<img src="sock.png" class="sock" id='+this.name+' />' );
-    }
-}
-
-var Cheese = function (index){
-    this.x = function (){
-        return index*this.width()%600;
-    };
-    this.y = function(){
-        return parseInt(index*this.width()/600)*50;
-    };
-    this.offset = function(){
-        return $('#'+this.name).offset();
-    }
-    this.width = function(){
-        return $('.cheese').width();
-    }
-    this.height = function(){
-        return $('.cheese').height();
-    }
-    this.name = "Cheese"+index;
-    this.html = '<img src="Cheese.png" class="cheese" id='+this.name+' />'
-    this.putCheese = function (){
-
-        $( "#cheeseWall").append( this.html );
-        $('#'+this.name).css({
-            'left':this.x(),
-            'top':this.y()
-        })
-    };
-    this.setEaten = function (){
-         $('#'+this.name).css({
-         'display':'none'
-         })
-    }
-}
-
-var Mouse = function (_x, _y, index){
-    this.speed = 10;
-    this.frightened = 0;
-    this.hasEaten = 0;
-    this.x = _x;
-    this.y = _y;
-    this.name = "Mouse"+index;
-    this.offset = function(){
-        return $('#'+this.name).offset();
-    }
-    this.width = function(){
-        return $('.mouse').width();
-    };
-    this.height = function(){
-        return $('.mouse').width();
-    }
-    this.html = '<img src="rat.png" class="mouse" id='+this.name+' />';
-    this.createMouse = function () {
-        $( "#mouseHouse" ).prepend(this.html );
-        $('#'+this.name).css({
-            'left':this.x,
-            'top':this.y
-        })
-    };
-    this.move = function (){
-        this.moveLogic();
-        $('#'+this.name).css({
-            'left':this.x,
-            'top':this.y
-        })
-    }
-    this.moveLogic = function (){
-        if (this.frightened==1){
-            if (this.x>225){
-                this.x+=this.speed*3;}
-            else {
-                this.x-=this.speed*3;
-            }
-        }
-        else if (this.hasEaten) {
-            this.come_back();
-        }else {
-                this.y += this.speed;
-
-        }
-        if (this.y > 450 || this.x<-20 || this.x>590){
-            this.come_back();
-        }
-    };
-
-    this.come_back = function(){
-        var randY = -800+ Math.random()*200;
-        this.y += randY;
-        var randX = Math.random() *530;
-        this.x=randX;
-        this.frightened=0;
-        $('#'+this.name).css({
-            'left':this.x,
-            'top':this.y
-        })
-    };
-    this.collidesWith = function(element){
-
-            var Element1 = {};
-            var Element2 = {};
-
-            Element1.top = this.y;
-            Element1.left = this.x;
-            Element1.right = +this.x + this.width();
-            Element1.bottom = +this.y + this.height();
-
-            var offset = element.offset();
-            Element2.top = offset.top;
-            Element2.left = offset.left;
-            Element2.right = +offset.left + element.width();
-            Element2.bottom = +offset.top + element.height();
-
-            if (Element1.right > Element2.left && Element1.left < Element2.right && Element1.top < Element2.bottom && Element1.bottom > Element2.top) {
-                //console.log( Element1.right,Element1.left, Element1.top, Element1.bottom);
-                //console.log(Element2.right,  Element2.left,Element2.top, Element2.bottom);
-                this.come_back();
-                return true;
-            }
-            return false;
-
-    };
-}

@@ -4,20 +4,42 @@
     background: #a6ddf0;
     position:relative;
     cursor: url("lunette.png") 19 19, pointer;
+    font-family: fantasy;
+    font-size:20px;
 }
-#scoreBoard {
+
+
+#gameOver{
+    width:600px;
+    height:540px;
+    position:absolute;
+    background:red;
+    margin:0 auto;
+    top:-30px;
+    z-index:20;
+    font-size:45px;
+    padding: 200px;
+    box-sizing:border-box;
+}
+
+#topPanel {
+    box-sizing: border-box;
     color:white;
     text-transform: uppercase;
-    text-align: center;
     font-family: fantasy;
     font-size:20px;
     width:100%;
     height:30px;
     line-height:30px;
     background: royalblue;
+    padding: 5px 10px;
 }
 
-#score {
+#pause{
+    text-align: left;
+}
+#scoreContainer{
+    float: right;
     color: lightpink;
 }
 #cat {
@@ -41,9 +63,7 @@
 #cheeseWall {
     position:absolute;
     z-index:0;
-    bottom:150px
-
-;
+    bottom:150px;
     font-size:0;
 
 }
@@ -59,3 +79,11 @@
     height:50px;
     z-index:9;
 }
+
+.sock{
+    width:30px;
+    position:absolute;
+    left:230px;
+    top:410px;
+}
+
