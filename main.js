@@ -39,6 +39,8 @@ $( document ).ready(function() {
         new Sock()
     ];
 
+
+
     for (i in cheeses){
         cheeses[i].putCheese();
     }
@@ -61,9 +63,12 @@ $( document ).ready(function() {
         Cat.move(e);
     });
 
+    activeSocks = [];
 
     $('#screen').click(function(e) {
-        socks[0].fire(e, socks.shift());
+        var activeSock = socks[0];
+        activeSocks.push(activeSock);
+        activeSock.fire(e, socks.shift());
     });
 
     var pause = true;
@@ -82,9 +87,8 @@ $( document ).ready(function() {
             timer = setInterval(function () {
                 for (i in mice) {
                     mice[i].move();
-                    for (var u in socks) {
-                        if(socks[u].fired==true)
-                        if (mice[i].collidesWith(socks[u]) && mice[i].frightened==0){
+                    for (var u in activeSocks) {
+                        if (mice[i].collidesWith(activeSocks[u]) && mice[i].frightened==0){
                             mice[i].come_back();
                             scoreCounter.incrementScore();
                             mice[i].frightened=1;
@@ -97,13 +101,14 @@ $( document ).ready(function() {
                                 mice[i].come_back();
                             }
                         }
+                        if(mice[i].y>450) {
+                            gameOver();
+                            clearInterval(timer);
+                            timer = null;
+                            $('#screen').off('mousemove');
+                        }
                     }
-                    if(mice[i].y>450) {
-                        gameOver();
-                        clearInterval(timer);
-                        timer = null;
-                        $('#screen').off('mousemove');
-                    }
+
                 }
             }, 100);
             $("#pause").html("PAUSE");
